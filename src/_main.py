@@ -112,13 +112,12 @@ def _main():
         max_tokens: int = MISSING, presence_penalty: float = MISSING,
         temperature: float = MISSING, top_p: float = MISSING,
     ):
-        ai_config = openai_config
-        engine = ai_config['engine'] if engine is MISSING else engine
-        frequency_penalty = ai_config['frequency_penalty'] if frequency_penalty is MISSING else frequency_penalty
-        max_tokens = ai_config['max_tokens'] if max_tokens is MISSING else max_tokens
-        presence_penalty = ai_config['presence_penalty'] if presence_penalty is MISSING else presence_penalty
-        temperature = ai_config['temperature'] if temperature is MISSING else temperature
-        top_p = ai_config['top_p'] if top_p is MISSING else top_p
+        engine = openai_config['engine'] if engine is MISSING else engine
+        frequency_penalty = openai_config['frequency_penalty'] if frequency_penalty is MISSING else frequency_penalty
+        max_tokens = openai_config['max_tokens'] if max_tokens is MISSING else max_tokens
+        presence_penalty = openai_config['presence_penalty'] if presence_penalty is MISSING else presence_penalty
+        temperature = openai_config['temperature'] if temperature is MISSING else temperature
+        top_p = openai_config['top_p'] if top_p is MISSING else top_p
 
         embed = Embed(
             title = prompt,
