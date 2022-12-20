@@ -221,7 +221,7 @@ def _main():
                 # If the embed has an image link, set the image
                 url = validURL(embed.description)
                 if url is not None:
-                    embed.set_image(url=url[-1])
+                    embed.set_image(url=url)
 
                 embeds.append(embed)
 
