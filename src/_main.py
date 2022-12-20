@@ -6,6 +6,8 @@ import json
 import openai
 import os
 import platform
+import random
+import re
 import requests
 
 from discord import Embed, Intents, Interaction, Message
@@ -85,24 +87,19 @@ def _main():
 
         return tuple(engine_id)
 
-    @bot.event
-    async def on_command_error(context: Context, exception):
-        print(f'[-] Failed to execute command: {context.command.qualified_name}\n    By: {context.author} - {context.author.id}\n    Exception: {exception}\n')
-        await context.send(f'{context.author.mention} {exception}')
-
     @bot.tree.command(
         name='chat',
-        description='By using the GPT API, this command will chat with you.'
+        description='Chat with the AI.'
     )
     @describe(
         engine = f'Default: {openai_config["engine"]}. The engine to use for the chat.',
         ephemeral = 'Whether the response should be ephemeral or not.',
-        frequency_penalty = f'Default: {openai_config["frequency_penalty"]}. Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model\'s likelihood to repeat the same line verbatim.',
-        max_tokens = f'Default: {openai_config["max_tokens"]}. The maximum number of tokens to generate in the completion, Most models have a context length of 2048 tokens (except for the newest models, which support 4096).',
-        prompt = 'Prompt for the chatbot to respond to.',
-        presence_penalty = f'Default: {openai_config["presence_penalty"]}. Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model\'s likelihood to talk about new topics.',
-        temperature = f'Default: {openai_config["temperature"]}. What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.',
-        top_p = f'Default: {openai_config["top_p"]}. An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.',
+        frequency_penalty = f'Default: {openai_config["frequency_penalty"]}. Number between -2.0 and 2.0. Positive values penalize new tokens.',
+        max_tokens = f'Default: {openai_config["max_tokens"]}. The maximum number of tokens to generate in the completion.',
+        prompt = 'Anything you want to say to the AI. Have respect to the AI.',
+        presence_penalty = f'Default: {openai_config["presence_penalty"]}. Number between -2.0 and 2.0. Positive values penalize new tokens.',
+        temperature = f'Default: {openai_config["temperature"]}.Try 0.9 for more creative applications.',
+        top_p = f'Default: {openai_config["top_p"]}. An alternative to sampling with temperature, called nucleus sampling.',
         verbose = 'Whether to show the configuration used for the chat.',
     )
     async def chat(
@@ -145,22 +142,23 @@ def _main():
         # Create a message to edit later
         message: Message = await interaction.followup.send(
             ephemeral=ephemeral,
-            embed = Embed(description='I\'m thinking...')
+            embed=Embed(description='I\'m thinking...')
         )
 
         try:
             # Create a generator that will yield the response
             ai = openai.Completion.create(
+                echo=False,
                 stream=True,
                 engine=engine,
+                frequency_penalty=frequency_penalty,
+                max_tokens=max_tokens,
+                presence_penalty=presence_penalty,
                 prompt=prompt,
                 temperature=temperature,
-                max_tokens=max_tokens,
                 top_p=top_p,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty
             )
-        except openai.error.InvalidRequestError as e:
+        except openai.error.OpenAIError as e:
             # In case of an error, edit the message to show the error
             return await message.edit(
                 embed = Embed(
@@ -185,11 +183,33 @@ def _main():
         def embed_genr() -> List[Embed]:
             """Convert the results into a list of embeds.
             """
+            def validURL(string: str) -> str:
+                """Return first valid URL in a string.
+                """
+                regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+                url = re.findall(regex, string)
+                urls = [x[0] for x in url]
+                if len(urls) == 0:
+                    return None
+
+                # Randomly choose one URL from the list
+                k = random.choice(urls)
+                try:
+                    # We only go through one URL at a time to prevent wasting time on testing all URLs
+                    requests.get(k)
+                    if requests.get(k).status_code == 200:
+                        return k
+                except:
+                    # Might get alot of errors such as MaxRetryError, ConnectionError, SSLCertVerificationError.
+                    pass
+
+                return None
+
             nonlocal results
             embeds = []
 
             # If there are no results, return an embed with a message
-            if results == '':
+            if len(results.strip()) == 0:
                 return [Embed(description='I\'m thinking...')]
 
             # Since one embed only supports 4096 characters, we need to split the results into multiple embeds
@@ -198,6 +218,12 @@ def _main():
                 embed = Embed(
                     description = results[page * 4096: (page + 1) * 4096]
                 )
+
+                # If the embed has an image link, set the image
+                url = validURL(embed.description)
+                if url is not None:
+                    embed.set_image(url=url[-1])
+
                 embeds.append(embed)
 
             return embeds
@@ -205,35 +231,34 @@ def _main():
         # Initialize the embed variable
         embeds: list = embed_genr()
 
-        while True:
-            async def send():
-                """Send the embeds.
-                """
-                nonlocal message, embeds
+        async def send():
+            """Send the embeds.
+            """
+            nonlocal message, embeds
 
-                # Comparing if new embeds are generated
-                prev_embeds_len = len(embeds)
-                embeds = embed_genr()
+            # Comparing if new embeds are generated
+            prev_embeds_len = len(embeds)
+            embeds = embed_genr()
 
-                # If new embeds are generated
-                if prev_embeds_len != len(embeds):
-                    # Since one message only can handle around 6000 characters, so we need to send the embed in a new message
-                    message = await interaction.followup.send(
-                        ephemeral=ephemeral,
-                        embeds=[embeds[-1]]
-                    )
+            # If new embeds are generated
+            if prev_embeds_len != len(embeds):
+                # Since one message only can handle around 6000 characters, so we need to send the embed in a new message
+                message = await interaction.followup.send(
+                    ephemeral=ephemeral,
+                    embed=embeds[-1]
+                )
 
-                # If no new embeds are generated
-                else:
-                    await message.edit(embeds=[embeds[-1]])
+            # If no new embeds are generated
+            else:
+                await message.edit(embed=embeds[-1])
 
+        await asyncio.sleep(1)
+        while t_ai_genr.is_alive():
             await send()
-
-            # If the generator is done, finally resend the embed one last time to ensure nothing is left, and break the loop
-            if not t_ai_genr.is_alive():
-                await asyncio.sleep(1)
-                await send()
-                break
+        else:
+            # If the generator is done, finally resend the embed one last time to ensure nothing is left
+            await asyncio.sleep(1)
+            await send()
 
     bot.run(
         bot.config['discord.token'],
@@ -258,7 +283,7 @@ def main():
 
     def getOpenAIModels(key: str) -> bool:
         """Check if the OpenAI API key is valid.
-        And the same time, get a list of available engines from the API, and write it to the engine file.
+        At the same time, get a list of available engines from the API, and write it to the engine file.
         """
         response = requests.get(
             'https://api.openai.com/v1/models',
@@ -266,12 +291,9 @@ def main():
                 "Authorization": f'Bearer {key}'
             }
         )
-
-        engines = response.json()
-        engine.write(engines)
-        print(repr(engine))
-
         if response.status_code == 200:
+            engines = response.json()
+            engine.write(engines)
             return True
         else:
             return False
@@ -279,6 +301,7 @@ def main():
     config = Config()
     engine = Engine()
     print(repr(config))
+    print(repr(engine))
 
     # Prompt the user to enter a valid discord token and OpenAI API key
     while True:

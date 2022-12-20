@@ -17,7 +17,7 @@ class Config:
             self.create()
 
     def __repr__(self):
-        return f'<{__class__.__name__}: {self.filePath}>'
+        return f'<{self.__class__.__name__}: {self.filePath}>'
 
     @property
     def appPath(self) -> str:
