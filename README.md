@@ -76,3 +76,7 @@ $ chatgpt-in-discord.exe
 2. Create a key and save it for later use.
 
 ![image](https://user-images.githubusercontent.com/57824016/208708354-50fc0cce-38ae-4682-b7d1-21049405cb6e.png)
+
+## Contributing
+### Docker
+Due to my lack of knowledge about Docker, I would greatly appreciate it if someone could open a pull request by creating a Docker image and explaining how to set up a Docker container!
