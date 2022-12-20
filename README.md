@@ -14,7 +14,7 @@ All the features are only used by one command:
 
 ![image](https://user-images.githubusercontent.com/57824016/208705168-ec7b2b02-fc0e-48a3-9e02-862b35f12e8e.gif)
 
-### List of parameters
+### List of OPTIONAL parameters
 
 * Ephemeral - The bot will send the message as a ephemeral message. Which means that the message only visible to the user who sent the command.
 
