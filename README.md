@@ -10,15 +10,18 @@ All the features are only used by one command:
 
 `/chat`
 
-![introduction](https://user-images.githubusercontent.com/57824016/208704917-b326eac8-d4a8-47cc-b712-e1c09d78e5d3.gif)
+![introduction](https://user-images.githubusercontent.com/80762068/208718991-103ae23b-db69-4bd4-b7f4-bd44769bd455.gif)
 
-![image](https://user-images.githubusercontent.com/57824016/208705168-ec7b2b02-fc0e-48a3-9e02-862b35f12e8e.gif)
+
+![image](https://user-images.githubusercontent.com/80762068/208718928-48a01208-19f8-4f67-ae8e-e22c412c3b1f.gif)
+
 
 ### List of OPTIONAL parameters
 
 * Ephemeral - The bot will send the message as a ephemeral message. Which means that the message only visible to the user who sent the command.
 
-![ephemeral](https://user-images.githubusercontent.com/57824016/208705130-42164351-53bb-41d6-b1e7-47b735ea71a1.gif)
+![ephemeral](https://user-images.githubusercontent.com/80762068/208716712-b11dd57b-5375-4579-95f1-0a1228e73bfc.gif)
+
 
 * Engine - ID of the model to use.
 
@@ -33,7 +36,7 @@ The token count of your prompt plus max_tokens cannot exceed the model's context
 
 * Top P - An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.
 
-![parameters](https://user-images.githubusercontent.com/57824016/208705232-577edb3d-63e7-42dd-920a-f883c9af2935.gif)
+![parameter](https://user-images.githubusercontent.com/80762068/208720842-73be789b-27ef-4817-90d8-caa00fc410d3.gif)
 
 ## Installation
 Before installation, make sure that you have Python >= 3.8 installed.
