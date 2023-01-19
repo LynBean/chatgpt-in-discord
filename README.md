@@ -1,3 +1,7 @@
+# ⭐ THIS REPO HAS BEEN DEPRECATED ⭐
+The development is still undergoing at
+[Yor the discord bot](https://github.com/LynBean/Yor)
+
 # Chat GPT in Discord!
 
 Chat GPT is an artificial intelligence chatbot that can do, well, pretty much everything. It can code, it can write articles, it can solve most of your questions.
@@ -12,7 +16,6 @@ All the features are only used by one command:
 
 ![introduction](https://user-images.githubusercontent.com/80762068/208718991-103ae23b-db69-4bd4-b7f4-bd44769bd455.gif)
 
-
 ![image](https://user-images.githubusercontent.com/80762068/208718928-48a01208-19f8-4f67-ae8e-e22c412c3b1f.gif)
 
 
@@ -21,7 +24,6 @@ All the features are only used by one command:
 * Ephemeral - The bot will send the message as a ephemeral message. Which means that the message only visible to the user who sent the command.
 
 ![ephemeral](https://user-images.githubusercontent.com/80762068/208716712-b11dd57b-5375-4579-95f1-0a1228e73bfc.gif)
-
 
 * Engine - ID of the model to use.
 
@@ -76,7 +78,3 @@ $ chatgpt-in-discord.exe
 2. Create a key and save it for later use.
 
 ![image](https://user-images.githubusercontent.com/57824016/208708354-50fc0cce-38ae-4682-b7d1-21049405cb6e.png)
-
-## Contributing
-### Docker
-Due to my lack of knowledge about Docker, I would greatly appreciate it if someone could open a pull request by creating a Docker image and explaining how to set up a Docker container!
